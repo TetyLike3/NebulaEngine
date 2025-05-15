@@ -1,5 +1,4 @@
 #include "Utilities.h"
-#include <windows.h>
 
 Utilities* Utilities::m_pInstance = nullptr;
 
@@ -92,13 +91,14 @@ std::vector<std::filesystem::directory_entry> Utilities::getFilesOfExtInFolder(s
 
 using std::string, std::vector, std::filesystem::directory_entry;
 
-string compilerPath = "../../shaders/glslc.exe";
+string compilerPath = "\\shaders\\glslc.exe";
+string compileExecPath = "\\shaders";
+string Utilities::EngineWorkingDirectory = "";
 vector<string>* Utilities::pCompiledVertShaders = new vector<string>();
 vector<string>* Utilities::pCompiledFragShaders = new vector<string>();
 
 void Utilities::compileShaders(std::filesystem::path folderPath) {
-	std::wstring tCompilerPath = std::wstring(compilerPath.begin(), compilerPath.end());
-	LPCWSTR wCompilerPath = tCompilerPath.c_str();
+	string workingCompilerPath = EngineWorkingDirectory + compilerPath;
 
 	// Get all shader files (.vert and .frag) in the folder
 	vector<directory_entry> vertShaders = getFilesOfExtInFolder(folderPath, ".vert");
@@ -108,26 +108,41 @@ void Utilities::compileShaders(std::filesystem::path folderPath) {
 	for (const auto& vertShader : vertShaders) {
 		std::filesystem::path vertShaderPath = vertShader.path();
 		string vertShaderName = vertShaderPath.filename().stem().string();
-		string outputName = vertShaderPath.relative_path().replace_extension(".spv").string();
-		string command = vertShaderPath.string() + " -o " + outputName;
+		std::filesystem::path outputPath = vertShaderPath;
+		string outputPathS = EngineWorkingDirectory + "/" + outputPath.replace_extension(".spv").string();
+		string command = workingCompilerPath + " " + EngineWorkingDirectory + "/" + vertShaderPath.string() + " -o " + outputPathS;
 
 		getInstance()->iDebugPrint("Compiling vertex shader: " + vertShaderName + " | Command: " + command, "Utilities");
 
-		ShellExecute(NULL, NULL, wCompilerPath, std::wstring(command.begin(), command.end()).c_str(), NULL, SW_HIDE);
-
-		Utilities::pCompiledVertShaders->push_back(outputName);
+		int result = system(command.c_str());
+		if (result != 0) {
+			getInstance()->iDebugPrint("Failed to compile vertex shader: " + vertShaderName, "Utilities");
+		}
+		else {
+			Utilities::pCompiledVertShaders->push_back(outputPathS);
+		}
 	};
 
 	for (const auto& fragShader : fragShaders) {
 		std::filesystem::path fragShaderPath = fragShader.path();
 		string fragShaderName = fragShaderPath.filename().stem().string();
-		string outputName = fragShaderPath.relative_path().replace_extension(".spv").string();
-		string command = fragShaderPath.string() + " -o " + outputName;
+		std::filesystem::path outputPath = fragShaderPath;
+		string outputPathS = EngineWorkingDirectory + "/" + outputPath.replace_extension(".spv").string();
+		string command = workingCompilerPath + " " + EngineWorkingDirectory + "/" + fragShaderPath.string() + " -o " + outputPathS;
 
 		getInstance()->iDebugPrint("Compiling fragment shader: " + fragShaderName + " | Command: " + command, "Utilities");
 
-		ShellExecute(NULL, NULL, wCompilerPath, std::wstring(command.begin(), command.end()).c_str(), NULL, SW_HIDE);
+		int result = system(command.c_str());
+		if (result != 0) {
+			getInstance()->iDebugPrint("Failed to compile fragment shader: " + fragShaderName, "Utilities");
+		}
+		else {
+			Utilities::pCompiledFragShaders->push_back(outputPathS);
+		}
+	};
 
-		Utilities::pCompiledFragShaders->push_back(outputName);
+	vector<directory_entry> compiledShaders = getFilesOfExtInFolder(folderPath, ".spv");
+	for (const auto& compiledShader : compiledShaders) {
+		getInstance()->iDebugPrint("Compiled shader: " + compiledShader.path().filename().string(), "Utilities");
 	};
 }

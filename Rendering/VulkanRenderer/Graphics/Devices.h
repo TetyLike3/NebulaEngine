@@ -37,6 +37,7 @@ public:
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice physicalDevice);
 
 	VkPhysicalDevice* getVkPhysicalDevice() { return &m_physicalDevice; };
+	VkSampleCountFlagBits getMaxUsableSampleCount();
 
 private:
 	VkInstance* m_pVkInstance = nullptr;

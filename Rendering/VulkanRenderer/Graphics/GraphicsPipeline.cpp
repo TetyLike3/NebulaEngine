@@ -7,6 +7,8 @@
 GraphicsPipeline::GraphicsPipeline() : m_pLogicalDevice(VulkanEngine::getInstance()->m_pLogicalDevice->getVkDevice()), m_pPhysicalDevice(VulkanEngine::getInstance()->m_pPhysicalDevice->getVkPhysicalDevice()),
 m_pSwapchain(VulkanEngine::getInstance()->m_pSwapchain), m_pGraphicsSettings(&VulkanEngine::getInstance()->m_settings->graphicsSettings), m_pUtilities(Utilities::getInstance())
 {
+	m_msaaSamples = VulkanEngine::getInstance()->m_pPhysicalDevice->getMaxUsableSampleCount();
+
 	createRenderPass();
 	createDescriptorSetLayout();
 	createGraphicsPipeline();
@@ -140,12 +142,6 @@ void GraphicsPipeline::createGraphicsPipeline()
 	std::vector<VkPipelineShaderStageCreateInfo> shaderStagesV;
 	for (int i = 0; i < Utilities::pCompiledVertShaders->size(); i++) {
 		auto vertShader = Utilities::pCompiledVertShaders->at(i);
-		unsigned first = vertShader.find_last_of("\\");
-		//unsigned last = vertShader.find_last_of(".");
-		//std::string vertShaderName = vertShader.substr(first+1, last - first);
-		std::string vertShaderName = vertShader;//.substr(first+1);
-
-		mDebugPrint(vertShaderName);
 
 		auto vertShaderCode = m_pUtilities->readFile(vertShader);
 		VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
@@ -155,7 +151,7 @@ void GraphicsPipeline::createGraphicsPipeline()
 			.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 			.stage = VK_SHADER_STAGE_VERTEX_BIT,
 			.module = vertShaderModule,
-			.pName = vertShaderName.c_str()
+			.pName = "main"
 		};
 
 		shaderStagesV.push_back(vertShaderStageInfo);
@@ -163,10 +159,6 @@ void GraphicsPipeline::createGraphicsPipeline()
 
 	for (int i = 0; i < Utilities::pCompiledFragShaders->size(); i++) {
 		auto fragShader = Utilities::pCompiledFragShaders->at(i);
-		unsigned first = fragShader.find_last_of("\\");
-		//unsigned last = fragShader.find_last_of(".");
-		//std::string fragShaderName = fragShader.substr(first+1, last - first);
-		std::string fragShaderName = fragShader;//.substr(first+1);
 
 		auto fragShaderCode = m_pUtilities->readFile(fragShader);
 		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -175,11 +167,10 @@ void GraphicsPipeline::createGraphicsPipeline()
 			.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
 			.stage = VK_SHADER_STAGE_FRAGMENT_BIT,
 			.module = fragShaderModule,
-			.pName = fragShaderName.c_str()
+			.pName = "main"
 		};
 		shaderStagesV.push_back(fragShaderStageInfo);
 	}
-
 
 
 	VkPipelineShaderStageCreateInfo* shaderStages = &shaderStagesV[0];
@@ -349,6 +340,14 @@ void GraphicsPipeline::createGraphicsPipeline()
 
 void GraphicsPipeline::cleanup()
 {
+	vkDestroyImageView(*m_pLogicalDevice, m_colorImageView, nullptr);
+	vkDestroyImage(*m_pLogicalDevice, m_colorImage, nullptr);
+	vkFreeMemory(*m_pLogicalDevice, m_colorImageMemory, nullptr);
+
+	vkDestroyImageView(*m_pLogicalDevice, m_depthImageView, nullptr);
+	vkDestroyImage(*m_pLogicalDevice, m_depthImage, nullptr);
+	vkFreeMemory(*m_pLogicalDevice, m_depthImageMemory, nullptr);
+
 	vkDestroyDescriptorSetLayout(*m_pLogicalDevice, m_descriptorSetLayout, nullptr);
 	vkDestroyPipeline(*m_pLogicalDevice, m_graphicsPipeline, nullptr);
 	vkDestroyPipelineLayout(*m_pLogicalDevice, m_pipelineLayout, nullptr);
@@ -371,4 +370,17 @@ VkShaderModule GraphicsPipeline::createShaderModule(const std::vector<char>& cod
 	}
 
 	return shaderModule;
+}
+
+void GraphicsPipeline::createColorResources() {
+
+	VkFormat colorFormat = *m_pSwapchain->getSwapchainImageFormat();
+	Image::createImage(m_pSwapchain->getSwapchainExtent()->width, m_pSwapchain->getSwapchainExtent()->height, colorFormat, m_msaaSamples, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_colorImage, m_colorImageMemory);
+	m_colorImageView = Image::createImageView(m_colorImage, colorFormat, VK_IMAGE_ASPECT_COLOR_BIT);
+}
+
+void GraphicsPipeline::createDepthResources() {
+	VkFormat depthFormat = DepthBuffer::findDepthFormat(m_pPhysicalDevice);
+	Image::createImage(m_pSwapchain->getSwapchainExtent()->width, m_pSwapchain->getSwapchainExtent()->height, depthFormat, m_msaaSamples, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, m_depthImage, m_depthImageMemory);
+	m_depthImageView = Image::createImageView(m_depthImage, depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT);
 }

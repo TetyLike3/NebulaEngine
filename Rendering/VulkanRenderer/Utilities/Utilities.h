@@ -76,6 +76,7 @@ public:
 	std::string generateTimestamp_HH_MM_SS_mmm();
 
 
+	static std::string EngineWorkingDirectory;
 	std::vector<char> readFile(const std::string& filename);
 	static std::vector<std::filesystem::directory_entry> getFilesInFolder(std::filesystem::path folderPath);
 	static std::vector<std::filesystem::directory_entry> getFilesOfExtInFolder(std::filesystem::path folderPath, std::string ext);

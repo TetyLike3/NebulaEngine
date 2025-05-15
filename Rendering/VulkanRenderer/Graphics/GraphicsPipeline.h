@@ -34,6 +34,14 @@ private:
 	Swapchain* m_pSwapchain = nullptr;
 	sSettings::sGraphicsSettings* m_pGraphicsSettings = nullptr;
 
+	VkSampleCountFlagBits m_msaaSamples = VK_SAMPLE_COUNT_1_BIT;
+	VkImage m_colorImage = nullptr;
+	VkDeviceMemory m_colorImageMemory = nullptr;
+	VkImageView m_colorImageView = nullptr;
+	VkImage m_depthImage = nullptr;
+	VkDeviceMemory m_depthImageMemory = nullptr;
+	VkImageView m_depthImageView = nullptr;
+
 	VkDescriptorSetLayout m_descriptorSetLayout = VK_NULL_HANDLE;
 	VkPipelineLayout m_pipelineLayout = VK_NULL_HANDLE;
 	VkRenderPass m_renderPass = VK_NULL_HANDLE;
@@ -41,5 +49,7 @@ private:
 
 
 	VkShaderModule createShaderModule(const std::vector<char>& code);
+	void createColorResources();
+	void createDepthResources();
 };
 

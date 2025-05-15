@@ -27,9 +27,6 @@ void VulkanEngine::destroyInstance()
 
 		nativeDebugPrint("Exiting...", true);
 		m_pInstance->m_state = VkEngineState::EXIT;
-		//delete m_pInstance;
-		//m_pInstance = nullptr;
-		//nativeDebugPrint("Instance destroyed");
 	}
 }
 

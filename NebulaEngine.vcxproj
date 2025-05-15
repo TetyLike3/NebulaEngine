@@ -106,7 +106,7 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>M:\_lib\tinyobjloader;M:\_lib\stb-master;M:\_lib\VulkanSDK\1.3.280.0\Include;M:\_lib\glm;M:\_lib\glfw-3.4.bin.WIN64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>M:\_lib\tinyobjloader;M:\_lib\stb-master;M:\_lib\VulkanSDK\1.3.280.0\Include;M:\_lib\glm;M:\_lib\glfw-3.4.bin.WIN64\include;M:\_lib\glad_3.3-core\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -133,41 +133,29 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Rendering\OpenGLRenderer\Models\BaseModel.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="VulkanRenderer\Graphics\Buffers.cpp" />
-    <ClCompile Include="VulkanRenderer\Graphics\Devices.cpp" />
-    <ClCompile Include="VulkanRenderer\Graphics\GraphicsPipeline.cpp" />
-    <ClCompile Include="VulkanRenderer\Graphics\Image.cpp" />
-    <ClCompile Include="VulkanRenderer\Graphics\QueueFamilyIndices.cpp" />
-    <ClCompile Include="VulkanRenderer\Graphics\Swapchain.cpp" />
-    <ClCompile Include="VulkanRenderer\Graphics\Window.cpp" />
-    <ClCompile Include="VulkanRenderer\Models\Camera.cpp" />
-    <ClCompile Include="VulkanRenderer\Models\Model.cpp" />
-    <ClCompile Include="VulkanRenderer\Utilities\DebugMessenger.cpp" />
-    <ClCompile Include="VulkanRenderer\Utilities\Utilities.cpp" />
-    <ClCompile Include="VulkanRenderer\VulkanRenderer.cpp" />
+    <ClCompile Include="Rendering\OpenGLRenderer\glad.c" />
+    <ClCompile Include="Rendering\OpenGLRenderer\Models\Camera.cpp" />
+    <ClCompile Include="Rendering\OpenGLRenderer\OpenGLRenderer.cpp" />
+    <ClCompile Include="Rendering\OpenGLRenderer\Graphics\Window.cpp" />
+    <ClCompile Include="Rendering\OpenGLRenderer\Utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="VulkanRenderer\Graphics\Buffers.h" />
-    <ClInclude Include="VulkanRenderer\Graphics\Devices.h" />
-    <ClInclude Include="VulkanRenderer\Graphics\GraphicsPipeline.h" />
-    <ClInclude Include="VulkanRenderer\Graphics\Image.h" />
-    <ClInclude Include="VulkanRenderer\Graphics\QueueFamilyIndices.h" />
-    <ClInclude Include="VulkanRenderer\Graphics\Swapchain.h" />
-    <ClInclude Include="VulkanRenderer\Graphics\Vertex.h" />
-    <ClInclude Include="VulkanRenderer\Graphics\Window.h" />
-    <ClInclude Include="VulkanRenderer\Models\Camera.h" />
-    <ClInclude Include="VulkanRenderer\Models\Model.h" />
-    <ClInclude Include="VulkanRenderer\Utilities\DebugMessenger.h" />
-    <ClInclude Include="VulkanRenderer\Utilities\Utilities.h" />
-    <ClInclude Include="VulkanRenderer\VulkanRenderer.h" />
+    <ClInclude Include="Rendering\OpenGLRenderer\Models\BaseModel.h" />
+    <ClInclude Include="Rendering\OpenGLRenderer\Graphics\BaseShader.h" />
+    <ClInclude Include="Rendering\OpenGLRenderer\Graphics\BaseTexture.h" />
+    <ClInclude Include="Rendering\OpenGLRenderer\Models\Camera.h" />
+    <ClInclude Include="Rendering\OpenGLRenderer\OpenGLRenderer.h" />
+    <ClInclude Include="Rendering\OpenGLRenderer\Graphics\Window.h" />
+    <ClInclude Include="Rendering\OpenGLRenderer\Settings.h" />
+    <ClInclude Include="Rendering\OpenGLRenderer\Utilities.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\frag.spv" />
-    <None Include="shaders\glslc.exe" />
-    <None Include="shaders\shader.frag" />
-    <None Include="shaders\shader.vert" />
-    <None Include="shaders\vert.spv" />
+    <None Include="Rendering\shaders\postprocessing\filmGrain.frag" />
+    <None Include="Rendering\shaders\glslc.exe" />
+    <None Include="Rendering\shaders\baseShader\fragBase.frag" />
+    <None Include="Rendering\shaders\baseShader\vertBase.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
